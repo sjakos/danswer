@@ -283,7 +283,11 @@ def _run_indexing(
             net_doc_change = 0
             document_count = 0
             chunk_count = 0
+            curr_time = time.time()
             for doc_batch in doc_batch_generator:
+                logger.info(
+                    f"Building the next doc batch took {time.time() - curr_time} seconds"
+                )
                 logger.debug(
                     f"Indexing batch of documents: {[doc.to_short_descriptor() for doc in doc_batch]}"
                 )
@@ -319,6 +323,8 @@ def _run_indexing(
                 if db_connector.disabled:
                     # let the `except` block handle this
                     raise RuntimeError("Connector was disabled mid run")
+
+                curr_time = time.time()
 
             mark_attempt_succeeded(attempt, db_session)
             update_connector_credential_pair(
