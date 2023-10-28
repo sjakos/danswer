@@ -172,12 +172,16 @@ def cleanup_indexing_jobs(
                 time_since_update = current_db_time - index_attempt.time_updated
                 if time_since_update.seconds > 3 * 60 * 60:
                     existing_jobs[index_attempt.id].cancel()
-                    mark_run_failed(
-                        db_session=db_session,
-                        index_attempt=index_attempt,
-                        failure_reason="Indexing run frozen - no updates in 3 hours. "
-                        "The run will be re-attempted at next scheduled indexing time.",
+                    logger.error(
+                        f"Would have frozen job. Found time since last updated to be {time_since_update.seconds}"
+                        f"Found index attempt: {index_attempt} vs current DB time: {current_db_time}"
                     )
+                    # mark_run_failed(
+                    #     db_session=db_session,
+                    #     index_attempt=index_attempt,
+                    #     failure_reason="Indexing run frozen - no updates in last hour. "
+                    #     "The run will be re-attempted at next scheduled indexing time.",
+                    # )
             else:
                 # If job isn't known, simply mark it as failed
                 mark_run_failed(
